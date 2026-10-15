@@ -1,0 +1,13 @@
+timestamp,method,path,status,latency_ms,request_id
+2026-10-15T12:00:00Z,GET,/api/search,200,120,r001
+2026-10-15T12:00:01Z,GET,/api/search,200,140,r002
+2026-10-15T12:00:02Z,GET,/api/search,500,1550,r003
+2026-10-15T12:00:03Z,GET,/api/search,502,2100,r004
+2026-10-15T12:00:04Z,GET,/api/search,200,110,r005
+2026-10-15T12:00:05Z,GET,/api/search,200,135,r006
+2026-10-15T12:00:06Z,POST,/api/payments,200,300,r007
+2026-10-15T12:00:07Z,POST,/api/payments,503,1850,r008
+2026-10-15T12:00:08Z,POST,/api/payments,200,290,r009
+2026-10-15T12:00:09Z,GET,/api/health,200,20,r010
+2026-10-15T12:00:10Z,GET,/api/health,200,22,r011
+2026-10-15T12:00:11Z,GET,/api/health,200,18,r012
