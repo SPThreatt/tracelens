@@ -1,6 +1,6 @@
 # TraceLens
 
-**Zero-dependency API log analyzer for incident triage.** Turn request logs into endpoint-level reliability metrics and actionable findings in seconds.
+**API log analyzer for incident triage.** Turn request logs into endpoint-level reliability metrics and actionable findings in seconds.
 
 ## Quick start
 
