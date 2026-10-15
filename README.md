@@ -1,43 +1,88 @@
 # TraceLens
 
-**API log analyzer for incident triage.** Turn request logs into endpoint-level reliability metrics and actionable findings in seconds.
+**Turn API request logs into actionable incident insights.** Open-source developer observability with a FastAPI backend, React/TypeScript dashboard, and the original Python CLI.
 
-## Quick start
+![TraceLens mark](frontend/public/tracelens-mark.png)
 
-Requires Python 3.10+. No API keys, database, Docker, or pip installs.
+## Features
+
+- Upload CSV, JSONL, or NDJSON logs directly from your browser.
+- Overview dashboard: request volume, server error rate, p95 latency, and incident findings.
+- Endpoint health table, HTTP status breakdown, hourly request chart.
+- Searchable request explorer with status filtering.
+- Evidence-backed incident findings and suggested troubleshooting steps.
+- Download JSON reports. Demo mode requires no file or account.
+- Original dependency-free CLI preserved: `python -m tracelens samples/requests.csv`.
+- In-memory analysis only: uploaded files are not saved by the server.
+
+## Run in GitHub Codespaces
+
+From the **repository root**, start the backend:
 
 ```bash
-python -m tracelens samples/requests.csv
-python -m tracelens samples/requests.csv --output report.json
-python -m unittest discover -s tests -v
+python -m pip install -r backend/requirements.txt
+python -m uvicorn backend.app:app --host 0.0.0.0 --port 8000
 ```
 
-## Input
+In a **second terminal**:
 
-CSV (with header) or JSONL. Required fields: `timestamp` (timezone-aware ISO 8601), `method`, `path`, `status` (100–599), `latency_ms` (nonnegative number). Optional: `request_id`.
+```bash
+cd frontend
+npm install
+npm run dev -- --host 0.0.0.0
+```
 
-## Output
+In Codespaces open the forwarded **port 5173** in your browser (Ports tab → 5173 → Open in Browser). The Vite dev server forwards `/api` requests to FastAPI on port 8000.
 
-JSON containing overall request count, 5xx error rate, p95 latency, per-endpoint metrics, and prioritized findings with evidence and investigation suggestions. Query parameters are stripped from paths to reduce accidental sensitive-data exposure.
+Alternatively build the frontend and serve both from FastAPI on port 8000:
 
-## Options
+```bash
+cd frontend && npm install && npm run build && cd ..
+python -m pip install -r backend/requirements.txt
+python -m uvicorn backend.app:app --host 0.0.0.0 --port 8000
+```
 
-- `--latency-threshold 1000` sets the p95 warning threshold in milliseconds.
-- `--error-threshold 0.05` sets the 5xx error-rate threshold (fraction).
-- `--output report.json` writes machine-readable results.
+Then open forwarded port **8000**. API documentation is at `/docs`.
+
+## Expected log schema
+
+Required fields: `timestamp` (timezone-aware ISO 8601), `method`, `path`, `status`, `latency_ms`. Optional `request_id`.
+
+```csv
+timestamp,method,path,status,latency_ms,request_id
+2026-10-15T12:00:00Z,GET,/api/users,200,54,req-001
+2026-10-15T12:01:00Z,POST,/api/payments,503,1450,req-002
+```
+
+**Limits:** 5 MB upload, 25,000 records, UTF-8 only. Uploaded content is processed in memory; reports exist in your browser session until you reload. The demo uses synthetic logs. Avoid uploading production logs with secrets or personal data to an untrusted deployment.
+
+## API
+
+- `GET /api/health` — health check
+- `GET /api/demo` — sample analysis
+- `POST /api/analyze` — multipart `file` with optional `latency_threshold` (milliseconds) and `error_threshold` (fraction) query parameters
+
+## Tests
+
+```bash
+python -m pip install -r backend/requirements.txt
+python -m unittest discover -s tests -v
+cd frontend && npm install && npm run build
+```
+
+GitHub Actions validates Python tests and TypeScript/Vite build on each push.
 
 ## Architecture
 
-`CSV/JSONL → validation/normalization → endpoint grouping → percentile/error-rate analysis → JSON incident report`
+`React + TypeScript (Vite)` → `/api` → `FastAPI` → `tracelens.core` (original CLI analysis engine). No database, login, paid API, or cloud credentials required.
 
-## Limitations / roadmap
+## Roadmap
 
-This is an offline, single-file triage utility, not a live monitoring platform. Endpoint paths with dynamic IDs are not normalized, and findings are deterministic heuristics, not verified root-cause diagnoses. Planned: streaming ingestion, OpenTelemetry support, path templating, time-window baselines, HTML dashboard, and CI integrations.
-
-## Privacy
-
-Analyze only logs you are authorized to access. Do not commit customer logs, credentials, or sensitive request data. The tool does not send data over the network.
+- [x] Phase 1 — CLI log parser and incident triage
+- [x] Phase 2 — Browser dashboard, upload, visualizations, reports
+- [ ] Phase 3 — Request correlation, time-window anomaly detection, optional PostgreSQL storage
+- [ ] Phase 4 — Secure hosted demo, deployment and expanded integrations
 
 ## License
 
-MIT. See LICENSE.
+MIT — see [LICENSE](LICENSE).

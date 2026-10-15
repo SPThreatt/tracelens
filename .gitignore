@@ -1,6 +1,11 @@
 __pycache__/
-*.pyc
+*.py[cod]
 .pytest_cache/
 .venv/
-report.json
 .env
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.zip
+*.log
+.DS_Store
